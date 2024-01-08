@@ -16,8 +16,13 @@
     width: max-content;
     border-radius: $badge-component-border-radius 0 0
       $badge-component-border-radius;
-      display: flex;
-align-items: center;
+    display: flex;
+    align-items: center;
+    // thème dark
+    //@media (prefers-color-scheme: dark) {
+    //  background-color: $background-dark;
+    //  color: $text-dark;
+    //}
   }
   .value {
     padding: $padding-badge;
