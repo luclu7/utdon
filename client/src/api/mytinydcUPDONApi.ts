@@ -8,12 +8,15 @@ import {
   ActionCiCdType,
   ActionStatusType,
   ChangePasswordType,
+  NewUserType,
   UptodateForm,
 } from "../../../src/Global.types";
 
 export const mytinydcUPDONApi = createApi({
   // Query service name
   reducerPath: "api",
+  // tag types
+    tagTypes: ["User"],
   // Url Base API
   baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
   endpoints: (builder) => ({
@@ -103,6 +106,23 @@ export const mytinydcUPDONApi = createApi({
       query: () => ({
         url: `/users/`,
       }),
+      providesTags: ["User"]
+    }),
+    postUser: builder.mutation({
+      query: (data: NewUserType) => ({
+        method: "POST",
+        url: `/users/`,
+        body: data,
+      }),
+      invalidatesTags:  ["User"]
+    }),
+    deleteUser: builder.mutation({
+      query: (login: string) => ({
+        method: "DELETE",
+        url: `/users/${login}`,
+        type: "mutation",
+      }),
+      invalidatesTags: ["User"]
     }),
   }),
 });
@@ -110,5 +130,5 @@ export const mytinydcUPDONApi = createApi({
 export const {
   usePostUserLoginMutation,
   useGetCheckQuery,
-  useDeleteCheckMutation,
+  useGetUsersQuery,
 } = mytinydcUPDONApi;

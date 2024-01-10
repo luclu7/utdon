@@ -105,7 +105,7 @@ export const Header = () => {
           })
       );
       setDialogContent(
-          <UserManager onHide={() => setIsDialogVisible(false)} />
+          <UserManager />
       );
       setIsDialogVisible(true);
   }

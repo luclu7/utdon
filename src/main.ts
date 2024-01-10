@@ -85,7 +85,7 @@ const auth = new Authentification(
   process.env.environment === "development" ? userDbPathDev : userDbPath
 );
 const data = auth.loadUsersFromDatabase();
-if (!data.users || data.users.length === 0) {
+if (data.users && data.users.length === 0) {
   logger.info({ action: "Creating user database, with admin/admin" });
   auth.store(auth.makeUser(ADMINUSERLOGINDEFAULT, ADMINPASSWORDDEFAULT));
 }

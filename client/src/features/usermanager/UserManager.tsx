@@ -18,15 +18,11 @@ import { ErrorServer, NewUserType } from "../../../../src/Global.types";
 import { FieldSet } from "../../components/FieldSet";
 import ButtonGeneric from "../../components/ButtonGeneric";
 import { Block } from "../../components/Block";
-import { mytinydcUPDONApi } from "../../api/mytinydcUPDONApi";
+import { mytinydcUPDONApi, useGetUsersQuery } from "../../api/mytinydcUPDONApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { showServiceMessage } from "../../app/serviceMessageSlice";
 
-interface UserManagerProps {
-    onHide: () => void;
-}
-
-export const UserManager = ({onHide}: UserManagerProps) => {
+export const UserManager = () => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -35,9 +31,14 @@ export const UserManager = ({onHide}: UserManagerProps) => {
         INITIALIZED_NEWUSER
     );
 
-    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+    const {
+        data: users,
+        isSuccess
+    } = useGetUsersQuery(null, {
+        skip: false,
+    });
 
-    // const [isDialogVisible, setIsDialogVisible] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
     /**
      * Used for server errors (api entrypoint call)
@@ -61,53 +62,62 @@ export const UserManager = ({onHide}: UserManagerProps) => {
         }
     };
 
-    const handleOnPost = async () => {
-        console.log(formData);
-        // if (
-        //   formData.password &&
-        //   formData.newPassword &&
-        //   formData.newConfirmPassword &&
-        //   formData.newPassword === formData.newConfirmPassword
-        // ) {
-        // dispatch(mytinydcUPDONApi.endpoints.putChangePassword.initiate({
-        //     ...formData,
-        //     login
-        //   }))
-        //     .unwrap()
-        //     .then(() => {
-        //       onHide();
-        //       dispatch(
-        //         showServiceMessage({
-        //           ...INITIALIZED_TOAST,
-        //           severity: "info",
-        //           sticky: true,
-        //           detail: intl.formatMessage({
-        //             id: "Your password has been changed",
-        //           }),
-        //         })
-        //       );
-        //     })
-        //     .catch((error) => {
-        //       dispatchServerError(error);
-        //     });
-        // }
+    const handleOnPost = async (e: React.FormEvent | null) => {
+        e?.preventDefault();
+        if (
+            formData.login &&
+            formData.password) {
+            dispatch(mytinydcUPDONApi.endpoints.postUser.initiate(
+                formData
+            ))
+                .unwrap()
+                .then(() => {
+                    // onHide();
+                    dispatch(
+                        showServiceMessage({
+                            ...INITIALIZED_TOAST,
+                            severity: "info",
+                            sticky: false,
+                            detail: intl.formatMessage({
+                                id: `User ${formData.login} created`,
+                            }),
+                        })
+                    );
+                })
+                .catch((error) => {
+                    dispatchServerError(error);
+                });
+        }
     };
+
+    const handleOnDelete = async (login: string) => {
+        console.log(login);
+        if (login) {
+            dispatch(mytinydcUPDONApi.endpoints.deleteUser.initiate(login))
+                .unwrap()
+                .then(() => {
+                    dispatch(
+                        showServiceMessage({
+                            ...INITIALIZED_TOAST,
+                            severity: "info",
+                            sticky: false,
+                            detail: intl.formatMessage({
+                                id: `User ${login} deleted`,
+                            }),
+                        })
+                    );
+                })
+                .catch((error) => {
+                    dispatchServerError(error);
+                });
+        }
+
+    }
+
+
     const handleOnChange = (key: string, value: string) => {
         setFormData({...formData, [key]: value});
     };
-
-    const [users, setUsers] = useState([] as string[]);
-
-    useEffect(() => {
-        dispatch(mytinydcUPDONApi.endpoints.getUsers.initiate(null))
-            .unwrap()
-            .then((response) => {
-                setUsers(response);
-            })
-            .catch((error) => {
-                dispatchServerError(error);
-            });
-    }, []);
 
     useEffect(() => {
         if (
@@ -122,6 +132,40 @@ export const UserManager = ({onHide}: UserManagerProps) => {
 
     return (
         <div className="UserManager">
+            <h2 className={"new-user-label"}>{intl.formatMessage({id: "Add a new user"})}</h2>
+            <Block>
+                <form onSubmit={handleOnPost} className={"form"}>
+                    <FieldSet
+                        legend={intl.formatMessage({id: "Username"})}
+                        className="expression"
+                    >
+                        <InputGeneric
+                            value={formData.login}
+                            onChange={(value) => handleOnChange("login", value)}
+                        />
+                    </FieldSet>
+                    <FieldSet
+                        legend={intl.formatMessage({id: "Password"})}
+                        className="password"
+                    >
+                        <InputGeneric
+                            value={formData.password}
+                            type={"password"}
+                            onChange={(value) => handleOnChange("password", value)}
+                        />
+                    </FieldSet>
+                    <FieldSet legend={intl.formatMessage({id: "Submit"})} className={"submit-button"}>
+                        <ButtonGeneric
+                            className="success submit-button"
+                            onClick={handleOnPost}
+                            // icon={"device-floppy"}
+                            label={intl.formatMessage({id: "Submit"})}
+                            disabled={isButtonDisabled}
+                        />
+                    </FieldSet>
+                </form>
+            </Block>
+
             <table>
                 <thead>
                 <tr>
@@ -130,12 +174,12 @@ export const UserManager = ({onHide}: UserManagerProps) => {
                 </tr>
                 </thead>
                 <tbody>
-                {users.map((user) => {
+                {isSuccess && (users as string[]).map((user) => {
                     return (
                         <tr key={user}>
                             <td>{user}</td>
                             <td>
-                                <ButtonGeneric onClick={(e) => console.log(e)}
+                                <ButtonGeneric onClick={() => handleOnDelete(user)}
                                                label={intl.formatMessage({id: "Delete"})} icon={"trash"}/>
                                 <ButtonGeneric onClick={(e) => console.log(e)} label={intl.formatMessage({id: "Edit"})}
                                                icon={"edit"}/>
@@ -143,90 +187,9 @@ export const UserManager = ({onHide}: UserManagerProps) => {
                         </tr>
                     )
                 })}
+
                 </tbody>
             </table>
-
-            <h2 className={"new-user-label"}>{intl.formatMessage({id: "Add a new user"})}</h2>
-            <Block>
-                <FieldSet
-                    legend={intl.formatMessage({id: "Username"})}
-                    className="expression"
-                >
-                    <InputGeneric
-                        value={formData.login}
-                        onChange={(value) => handleOnChange("login", value)}
-                    />
-                </FieldSet>
-                <FieldSet
-                    legend={intl.formatMessage({id: "Password"})}
-                    className="password"
-                >
-                    <InputGeneric
-                        value={formData.password}
-                        type={"password"}
-                        onChange={(value) => handleOnChange("password", value)}
-                    />
-                </FieldSet>
-                <FieldSet legend={intl.formatMessage({id: "Submit"})} className={"submit-button"}>
-                    <ButtonGeneric
-                        className="success submit-button"
-                        onClick={handleOnPost}
-                        // icon={"device-floppy"}
-                        label={intl.formatMessage({id: "Submit"})}
-                        disabled={isButtonDisabled}
-                    />
-                </FieldSet>
-            </Block>
-
         </div>
-
-        // <Block className={`ChangePassword`}>
-        //   <FieldSet legend={intl.formatMessage({ id: "Username" })}>
-        //     <InputGeneric
-        //       value={formData.password}
-        //       onChange={(value: string) => handleOnChange("password", value)}
-        //       autoComplete="new-password"
-        //       type="password"
-        //     />
-        //   </FieldSet>
-        //   <FieldSet legend={intl.formatMessage({ id: "Your new password" })}>
-        //     <InputGeneric
-        //       value={formData.newPassword}
-        //       onChange={(value: string) => handleOnChange("newPassword", value)}
-        //       type="password"
-        //       autoComplete="new-password"
-        //     />
-        //   </FieldSet>
-        //   <FieldSet
-        //     legend={intl.formatMessage({ id: "Confirm your current password" })}
-        //   >
-        //     <InputGeneric
-        //       value={formData.newConfirmPassword}
-        //       onChange={(value: string) =>
-        //         handleOnChange("newConfirmPassword", value)
-        //       }
-        //       type="password"
-        //       autoComplete="new-password"
-        //       onKeyUp={(key: string) => {
-        //         if (key === "Enter") handleOnPost();
-        //       }}
-        //     />
-        //   </FieldSet>
-        //   <div className="groupButtons">
-        //     <ButtonGeneric
-        //       label={intl.formatMessage({ id: "Save" })}
-        //       onClick={handleOnPost}
-        //       disabled={isButtonDisabled}
-        //       className={isButtonDisabled ? "disabled" : ""}
-        //       title={
-        //         isButtonDisabled
-        //           ? intl.formatMessage({
-        //               id: "Disabled because form not filled in",
-        //             })
-        //           : ""
-        //       }
-        //     />
-        //   </div>
-        // </Block>
     );
 };

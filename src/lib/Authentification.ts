@@ -138,6 +138,25 @@ export class Authentification {
     return this.users.users.map((user) => user.login);
   };
 
+  addUser = (user: UserType) => {
+    this.users.users.push(user);
+    writeFileSync(this.database, JSON.stringify(this.users), {
+      encoding: "utf-8",
+      mode: 0o600,
+    });
+  }
+
+  deleteUser = (user: string) => {
+    let uid = this.users.users.findIndex((u) => u.login === user);
+    if (uid !== -1) {
+      this.users.users.splice(uid, 1);
+      writeFileSync(this.database, JSON.stringify(this.users), {
+        encoding: "utf-8",
+        mode: 0o600,
+      });
+    }
+  }
+
   getUserBearer = (user: string): string => {
     // return this.users.users.fil .map((user) => Authentification.dataDecrypt(user.bearer, process.env.USER_ENCRYPT_SECRET || ""));
     let uid = this.users.users.findIndex((u) => u.login === user);
