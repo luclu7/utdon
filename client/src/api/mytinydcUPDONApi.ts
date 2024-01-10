@@ -99,6 +99,11 @@ export const mytinydcUPDONApi = createApi({
         url: `/bearer/`,
       }),
     }),
+    getUsers: builder.query({
+      query: () => ({
+        url: `/users/`,
+      }),
+    }),
   }),
 });
 

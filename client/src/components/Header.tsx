@@ -19,6 +19,7 @@ import { ErrorServer } from "../../../src/Global.types";
 import { showServiceMessage } from "../app/serviceMessageSlice";
 import { APPLICATION_VERSION, INITIALIZED_TOAST } from "../../../src/Constants";
 import { setRefetchuptodateForm } from "../app/contextSlice";
+import {UserManager} from "../features/usermanager/UserManager.tsx";
 
 export const Header = () => {
   const intl = useIntl();
@@ -97,6 +98,18 @@ export const Header = () => {
       });
   };
 
+  const displayDialogUsersManager = () => {
+      setDialogHeader(
+          intl.formatMessage({
+              id: "Users manager",
+          })
+      );
+      setDialogContent(
+          <UserManager onHide={() => setIsDialogVisible(false)} />
+      );
+      setIsDialogVisible(true);
+  }
+
   const [dialogContent, setDialogContent] = useState(<></>);
 
   const login = useAppSelector((state) => state.context.user.login);
@@ -146,13 +159,14 @@ export const Header = () => {
           className="curlcommands"
         />
         <div className="flexPushLeft logout">
-          <ButtonGeneric
             {login && (
-            <div className="loginName">
-                <div className="ti ti-user"></div>
+                <div className="loginName">
+                    <div className="ti ti-user"></div>
                     {login ? login : "..."}
-            </div>
+                </div>
             )}
+            <ButtonGeneric onClick={displayDialogUsersManager} icon={"users"} title={intl.formatMessage({ id: "Change you password" })} />
+
             <ButtonGeneric
             icon={"file-function"}
             title={intl.formatMessage({ id: "API Documentation" })}

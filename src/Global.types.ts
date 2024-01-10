@@ -168,6 +168,11 @@ export type ChangePasswordType = {
   newConfirmPassword: string;
 };
 
+export type NewUserType = {
+  login: string;
+  password: string;
+}
+
 export type ControlToPause = {
   uuid: string;
   state: boolean;

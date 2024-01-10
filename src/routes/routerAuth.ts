@@ -73,6 +73,26 @@ routerAuth.post(
   }
 );
 
+routerAuth.get(
+    "/users",
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const session = req.session as SessionExt;
+        if (
+          session.user &&
+          session.user.login // &&
+          // session.user.login === "admin"
+        ) {
+          res.status(200).json(req.app.get("AUTH").getUsersLogins());
+        } else {
+          res.status(500).json({ error: "User is not logged with session" });
+        }
+      } catch (error: unknown) {
+        next(error);
+      }
+    }
+)
+
 /**
  *
  * @swagger

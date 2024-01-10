@@ -9,7 +9,7 @@ import {
   SelectOptionType,
   ToastType,
   UptoDateOrNotState,
-  UptodateForm,
+  UptodateForm, NewUserType,
 } from "./Global.types";
 
 export const INPROGRESS_UPTODATEORNOTSTATE: UptoDateOrNotState = {
@@ -83,6 +83,11 @@ export const INITIALIZED_CHANGEPASSWORD: ChangePasswordType = {
   password: "",
   newPassword: "",
   newConfirmPassword: "",
+};
+
+export const INITIALIZED_NEWUSER: NewUserType = {
+  login: "",
+  password: "",
 };
 
 export const INITIALIZED_UPTODATEFORM: UptodateForm = {
