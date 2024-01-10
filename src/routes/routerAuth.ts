@@ -63,7 +63,7 @@ routerAuth.post(
             user: req.body.login,
           });
           const session = req.session as SessionExt;
-          session.user = req.app.get("AUTH").getInfoForUi();
+          session.user = req.app.get("AUTH").getInfoForUi(req.body.login);
         }
       }
       res.status(verif[0]).json(verif[1]);

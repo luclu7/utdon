@@ -30,8 +30,8 @@ describe("Authentification", () => {
   test("loadUserFromDatabase no user", () => {
     try {
       const auth = new Authentification(userDatabase);
-      const data = auth.loadUserFromDatabase();
-      expect(data.login).not.toBeDefined();
+      const data = auth.loadUsersFromDatabase();
+      expect(data.users[0].login).not.toBeDefined();
     } catch (error: unknown) {
       // unexpected error
       expect(error).not.toBeDefined();
@@ -91,15 +91,15 @@ describe("Authentification", () => {
     try {
       process.env.USER_ENCRYPT_SECRET = "test";
       const auth = new Authentification(userDatabase);
-      let data = auth.loadUserFromDatabase();
-      expect(data.login).not.toBeDefined();
+      let data = auth.loadUsersFromDatabase();
+      expect(data.users[0].login).not.toBeDefined();
       const user = auth.makeUser("admin", "admin");
       auth.store(user);
       //reload from disk
-      data = auth.loadUserFromDatabase();
-      expect(data.login).toEqual("admin");
-      expect(data.password).not.toEqual("");
-      expect(data.bearer).not.toEqual("");
+      data = auth.loadUsersFromDatabase();
+      expect(data.users[0].login).toEqual("admin");
+      expect(data.users[0].password).not.toEqual("");
+      expect(data.users[0].bearer).not.toEqual("");
     } catch (error: unknown) {
       // unexpected error
       expect(error).not.toBeDefined();
@@ -320,7 +320,7 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       auth.store(auth.makeUser("admin", "admin"));
       const req = {
-        headers: { authorization: `${auth.getUserBearer()}` },
+        headers: { authorization: `${auth.getUsersBearers()[0]}` },
       } as Request;
       const isAuth = auth.isAuthBearer(req);
       expect(isAuth).toBeTruthy();
@@ -397,7 +397,7 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       auth.store(auth.makeUser("admin", "admin"));
       const req = {
-        headers: { authorization: `${auth.getUserBearer()}` },
+        headers: { authorization: `${auth.getUsersBearers()[0]}` },
       } as Request;
       const isAuth = auth.isAuthenticated(req);
       expect(isAuth).toBeTruthy();
@@ -413,16 +413,18 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       const user = auth.store(auth.makeUser("admin", "admin"));
       const changepassword: ChangePasswordType = {
+        login: "admin",
         password: "admin",
         newPassword: "newpassword",
         newConfirmPassword: "newpassword",
       };
-      const oldbearer = user.bearer;
+      const oldbearer = user.users[0].bearer;
       const verify = auth.changePassword(changepassword);
 
       expect(verify[0]).toEqual(200);
-      expect(user.login).toEqual("admin");
-      expect(user.bearer).toEqual(oldbearer);
+      console.log(verify);
+      expect(user.users[0].login).toEqual("admin");
+      expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword(
         "admin",
         changepassword.newPassword
@@ -440,15 +442,16 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       const user = auth.store(auth.makeUser("admin", "admin"));
       const changepassword: ChangePasswordType = {
+        login: "admin",
         password: "adminxxxx",
         newPassword: "newpassword",
         newConfirmPassword: "newpassword",
       };
-      const oldbearer = user.bearer;
+      const oldbearer = user.users[0].bearer;
       const verify = auth.changePassword(changepassword);
       expect(verify[0]).toEqual(500);
-      expect(user.login).toEqual("admin");
-      expect(user.bearer).toEqual(oldbearer);
+      expect(user.users[0].login).toEqual("admin");
+      expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword("admin", "admin");
       expect(verifyPassword[0]).toEqual(200);
     } catch (error: unknown) {
@@ -463,15 +466,16 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       const user = auth.store(auth.makeUser("admin", "admin"));
       const changepassword: ChangePasswordType = {
+        login: "admin",
         password: "",
         newPassword: "newpassword",
         newConfirmPassword: "newpassword",
       };
-      const oldbearer = user.bearer;
+      const oldbearer = user.users[0].bearer;
       const verify = auth.changePassword(changepassword);
       expect(verify[0]).toEqual(500);
-      expect(user.login).toEqual("admin");
-      expect(user.bearer).toEqual(oldbearer);
+      expect(user.users[0].login).toEqual("admin");
+      expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword("admin", "admin");
       expect(verifyPassword[0]).toEqual(200);
     } catch (error: unknown) {
@@ -486,15 +490,16 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       const user = auth.store(auth.makeUser("admin", "admin"));
       const changepassword: ChangePasswordType = {
+        login: "admin",
         password: "admin",
         newPassword: "",
         newConfirmPassword: "newpassword",
       };
-      const oldbearer = user.bearer;
+      const oldbearer = user.users[0].bearer;
       const verify = auth.changePassword(changepassword);
       expect(verify[0]).toEqual(500);
-      expect(user.login).toEqual("admin");
-      expect(user.bearer).toEqual(oldbearer);
+      expect(user.users[0].login).toEqual("admin");
+      expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword("admin", "admin");
       expect(verifyPassword[0]).toEqual(200);
     } catch (error: unknown) {
@@ -509,15 +514,16 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       const user = auth.store(auth.makeUser("admin", "admin"));
       const changepassword: ChangePasswordType = {
+        login: "admin",
         password: "admin",
         newPassword: "newpassword",
         newConfirmPassword: "",
       };
-      const oldbearer = user.bearer;
+      const oldbearer = user.users[0].bearer;
       const verify = auth.changePassword(changepassword);
       expect(verify[0]).toEqual(500);
-      expect(user.login).toEqual("admin");
-      expect(user.bearer).toEqual(oldbearer);
+      expect(user.users[0].login).toEqual("admin");
+      expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword("admin", "admin");
       expect(verifyPassword[0]).toEqual(200);
     } catch (error: unknown) {
@@ -532,15 +538,16 @@ describe("Authentification", () => {
       const auth = new Authentification(userDatabase);
       const user = auth.store(auth.makeUser("admin", "admin"));
       const changepassword: ChangePasswordType = {
+        login: "admin",
         password: "admin",
         newPassword: "newpassword",
         newConfirmPassword: "xxxxxx",
       };
-      const oldbearer = user.bearer;
+      const oldbearer = user.users[0].bearer;
       const verify = auth.changePassword(changepassword);
       expect(verify[0]).toEqual(500);
-      expect(user.login).toEqual("admin");
-      expect(user.bearer).toEqual(oldbearer);
+      expect(user.users[0].login).toEqual("admin");
+      expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword("admin", "admin");
       expect(verifyPassword[0]).toEqual(200);
     } catch (error: unknown) {
@@ -554,20 +561,20 @@ describe("Authentification", () => {
       process.env.USER_ENCRYPT_SECRET = "test";
       const auth = new Authentification(userDatabase);
       let user = auth.store(auth.makeUser("admin", "admin"));
-      const oldbearer = user.bearer;
-      const oldpasswd = user.password;
-      const oldlogin = user.login;
-      const olduuid = user.uuid;
-      const verify = auth.changeBearer();
+      const oldbearer = user.users[0].bearer;
+      const oldpasswd = user.users[0].password;
+      const oldlogin = user.users[0].login;
+      const olduuid = user.users[0].uuid;
+      const verify = auth.changeBearer(user.users[0].login);
       expect(verify[0]).toEqual(200);
       //reload user
-      user = auth.user;
-      expect(user.bearer).not.toEqual("");
-      expect(user.bearer).not.toEqual(oldbearer);
+      user = auth.users;
+      expect(user.users[0].bearer).not.toEqual("");
+      expect(user.users[0].bearer).not.toEqual(oldbearer);
       //check no changes elsewhere
-      expect(user.password).toEqual(oldpasswd);
-      expect(user.login).toEqual(oldlogin);
-      expect(user.uuid).toEqual(olduuid);
+      expect(user.users[0].password).toEqual(oldpasswd);
+      expect(user.users[0].login).toEqual(oldlogin);
+      expect(user.users[0].uuid).toEqual(olduuid);
     } catch (error: unknown) {
       // unexpected error
       expect(error).not.toBeDefined();
