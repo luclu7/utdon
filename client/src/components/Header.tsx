@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { mytinydcUPDONApi } from "../api/mytinydcUPDONApi";
 import { useIntl } from "react-intl";
 import ButtonGeneric from "./ButtonGeneric";
-import { useAppDispatch } from "../app/hook";
+import {useAppDispatch, useAppSelector} from "../app/hook";
 
 import "./Header.scss";
 import { useState } from "react";
@@ -99,6 +99,8 @@ export const Header = () => {
 
   const [dialogContent, setDialogContent] = useState(<></>);
 
+  const login = useAppSelector((state) => state.context.user.login);
+
   return (
     <div className="header">
       <div className="buttonsgroup">
@@ -145,6 +147,13 @@ export const Header = () => {
         />
         <div className="flexPushLeft logout">
           <ButtonGeneric
+            {login && (
+            <div className="loginName">
+                <div className="ti ti-user"></div>
+                    {login ? login : "..."}
+            </div>
+            )}
+            <ButtonGeneric
             icon={"file-function"}
             title={intl.formatMessage({ id: "API Documentation" })}
             onClick={handleOnNavigateToApiDoc}
