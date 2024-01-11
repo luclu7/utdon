@@ -334,7 +334,7 @@ routerAuth.get(
         session.user.login // &&
         // session.user.login === "admin"
       ) {
-        res.status(200).json({ bearer: req.app.get("AUTH").getUserBearer() });
+        res.status(200).json({ bearer: req.app.get("AUTH").getUserBearer(session.user.login) });
       } else {
         res.status(500).json({ error: "User is not logged with session" });
       }
