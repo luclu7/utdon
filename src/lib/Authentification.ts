@@ -84,14 +84,10 @@ export class Authentification {
   };
 
   initDatabase = (user?: UserType) => {
-    let finalUser: UsersType | object;
-    if (!user) {
-      finalUser = {};
-    } else {
-      finalUser = user;
+    const users = {users: [ ]} as UsersType;
+    if (user) {
+      users.users.push(user);
     }
-
-    let users = {users: [finalUser]} as UsersType;
 
     writeFileSync(this.database, JSON.stringify(users), {
       encoding: "utf-8",
