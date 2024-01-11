@@ -106,7 +106,6 @@ export class Authentification {
     ) {
       // find user in database
       const currentUser = this.users.users.find((user) => user.login === login);
-      console.log(currentUser);
       if (!currentUser) return [401, LOGIN_FAILED];
       const newHash = crypto
         .pbkdf2Sync(
@@ -117,8 +116,6 @@ export class Authentification {
           "sha512"
         )
         .toString("hex");
-
-      console.log(currentUser.password, newHash, currentUser.password === newHash);
 
       if (currentUser.password === newHash) {
         return [200, this.getInfoForUi(login)];
