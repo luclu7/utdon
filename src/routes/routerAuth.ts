@@ -73,6 +73,35 @@ routerAuth.post(
   }
 );
 
+/**
+ *
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: get users list
+ *     description: Used by the User Management UI to get users list
+ *     security:
+ *       - ApiKeyAuth: []
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       200:
+ *         description: Users list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         description: Internal error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/Error'
+ */
 routerAuth.get(
     "/users",
     async (req: Request, res: Response, next: NextFunction) => {
@@ -93,6 +122,46 @@ routerAuth.get(
     }
 )
 
+/**
+ *
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: create user in the database
+ *     description: UI create user method
+ *     security:
+ *       - ApiKeyAuth: []
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       description: login and password
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/NewUserType'
+ *
+ *     responses:
+ *       200:
+ *         description: created user
+ *         content:
+ *           application/text:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 login:
+ *                   type: string
+ *       400:
+ *          description: User already exists
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         description: Internal error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/Error'
+ */
 routerAuth.post(
     "/users",
     async (req: Request, res: Response, next: NextFunction) => {
@@ -118,7 +187,7 @@ routerAuth.post(
                     res.status(400).json({error: "User already exists"});
                 }
             } else {
-                res.status(500).json({error: "User is not logged with session"});
+                res.status(401).json({error: "User is not logged with session"});
             }
         } catch (error: unknown) {
             next(error);
@@ -126,6 +195,45 @@ routerAuth.post(
     }
 )
 
+/**
+ *
+ * @swagger
+ * /users/{login}:
+ *   delete:
+ *     summary: delete user from the database
+ *     description: UI delete user method
+ *     security:
+ *       - ApiKeyAuth: []
+ *     tags:
+ *       - Authentication
+ *     parameters:
+ *       - in: path
+ *         name: login
+ *         required: true
+ *         description: login of the user to delete
+ *         schema:
+ *           type: string
+ *           example: "user"
+ *
+ *     responses:
+ *       200:
+ *         description: deleted
+ *         content:
+ *           application/text:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 login:
+ *                   type: string
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         description: Internal error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/Error'
+ */
 routerAuth.delete(
     "/users/:login",
     async (req: Request, res: Response, next: NextFunction) => {
