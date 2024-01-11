@@ -250,7 +250,7 @@ routerAuth.delete(
                 // get the list of current users, to check if user exists before deleting it
                 const users: string[] = req.app.get("AUTH").getUsersLogins();
 
-                let user = users.find((user) => user === userToDelete);
+                const user = users.find((user) => user === userToDelete);
 
                 // check if user exists
                 if (user) {

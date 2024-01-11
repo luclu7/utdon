@@ -157,7 +157,7 @@ export class Authentification {
   * @returns void
  */
   deleteUser = (user: string) => {
-    let uid = this.users.users.findIndex((u) => u.login === user);
+    const uid = this.users.users.findIndex((u) => u.login === user);
     if (uid !== -1) {
       this.users.users.splice(uid, 1);
       writeFileSync(this.database, JSON.stringify(this.users), {
@@ -173,7 +173,7 @@ export class Authentification {
    */
   getUserBearer = (user: string): string => {
     // return this.users.users.fil .map((user) => Authentification.dataDecrypt(user.bearer, process.env.USER_ENCRYPT_SECRET || ""));
-    let uid = this.users.users.findIndex((u) => u.login === user);
+    const uid = this.users.users.findIndex((u) => u.login === user);
     if (uid === -1) return "";
     return Authentification.dataDecrypt(
       this.users.users[uid].bearer,
@@ -190,7 +190,7 @@ export class Authentification {
     return this.users.users.map((user) => Authentification.dataDecrypt(user.bearer, process.env.USER_ENCRYPT_SECRET || ""));
   };
 
-  getInfoForUi(login: String): InfoIuType {
+  getInfoForUi(login: string): InfoIuType {
     const user = this.users.users.find((user) => user.login === login);
     if (!user) return { login: "", bearer: "" };
     return { login: user.login, bearer: user.bearer };
@@ -211,8 +211,8 @@ export class Authentification {
 
   isAuthBearer = (req: Request) => {
     if (req.headers) {
-      let bearers = this.getUsersBearers();
-      let bearer = bearers.find((bearer) => bearer === req.headers["authorization"]);
+      const bearers = this.getUsersBearers();
+      const bearer = bearers.find((bearer) => bearer === req.headers["authorization"]);
       return !!bearer;
     }
     return false;
@@ -256,7 +256,7 @@ export class Authentification {
         if (changepassword.newPassword === changepassword.newConfirmPassword) {
           // if so, find the uid of the user we want to change the password
           // console.log(changepassword.login);
-          let uid = this.users.users.findIndex((u) => u.login === changepassword.login);
+          const uid = this.users.users.findIndex((u) => u.login === changepassword.login);
 
           if (uid === -1) return [500, "User not found"];
 
