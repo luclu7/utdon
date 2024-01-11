@@ -144,6 +144,8 @@ export class Authentification {
   * @returns void
  */
   addUser = (user: UserType) => {
+    // check if user already exists
+    if (this.users.users.find((u) => u.login === user.login)) return;
     this.users.users.push(user);
     writeFileSync(this.database, JSON.stringify(this.users), {
       encoding: "utf-8",
