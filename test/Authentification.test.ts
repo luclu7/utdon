@@ -31,7 +31,7 @@ describe("Authentification", () => {
     try {
       const auth = new Authentification(userDatabase);
       const data = auth.loadUsersFromDatabase();
-      expect(data.users[0].login).not.toBeDefined();
+      expect(data.users[0]).not.toBeDefined();
     } catch (error: unknown) {
       // unexpected error
       expect(error).not.toBeDefined();
@@ -92,7 +92,7 @@ describe("Authentification", () => {
       process.env.USER_ENCRYPT_SECRET = "test";
       const auth = new Authentification(userDatabase);
       let data = auth.loadUsersFromDatabase();
-      expect(data.users[0].login).not.toBeDefined();
+      expect(data.users[0]).not.toBeDefined();
       const user = auth.makeUser("admin", "admin");
       auth.store(user);
       //reload from disk
@@ -100,6 +100,92 @@ describe("Authentification", () => {
       expect(data.users[0].login).toEqual("admin");
       expect(data.users[0].password).not.toEqual("");
       expect(data.users[0].bearer).not.toEqual("");
+
+      // delete every users
+      data.users.forEach((user) => auth.deleteUser(user.login));
+      // check that there is no user
+      data = auth.loadUsersFromDatabase();
+      expect(data.users[0]).not.toBeDefined();
+    } catch (error: unknown) {
+      // unexpected error
+      expect(error).not.toBeDefined();
+    }
+  });
+
+  test("make & store multiple User", () => {
+    try {
+      process.env.USER_ENCRYPT_SECRET = "test";
+      const auth = new Authentification(userDatabase);
+      let data = auth.loadUsersFromDatabase();
+      expect(data.users[0]).not.toBeDefined();
+      const users = [
+        auth.makeUser("admin", "admin"),
+        auth.makeUser("user1", "user1"),
+        auth.makeUser("user2", "user2"),
+      ];
+
+      users.forEach((user) => auth.addUser(user));
+
+      //reload from disk
+      data = auth.loadUsersFromDatabase();
+      users.forEach((user, index) => {
+
+        expect(data.users[index].login).toEqual(user.login);
+        expect(data.users[index].password).not.toEqual("");
+        expect(data.users[index].bearer).not.toEqual("");
+      });
+    } catch (error: unknown) {
+      // unexpected error
+      expect(error).not.toBeDefined();
+    }
+  });
+
+
+  test("make & store multiple User, then delete one of them", () => {
+    try {
+      process.env.USER_ENCRYPT_SECRET = "test";
+      const auth = new Authentification(userDatabase);
+      let data = auth.loadUsersFromDatabase();
+      // delete every users
+      data.users.forEach((user) => auth.deleteUser(user.login));
+      // reload
+      data = auth.loadUsersFromDatabase();
+
+      // check that there is no user
+      expect(data.users.length).toEqual(0)
+
+
+      const users = [
+        auth.makeUser("admin", "admin"),
+        auth.makeUser("user1", "user1"),
+        auth.makeUser("user2", "user2"),
+      ];
+
+      // add the users
+      users.forEach((user) => auth.addUser(user));
+
+      // reload
+      data = auth.loadUsersFromDatabase();
+
+      expect(data.users.length).toEqual(3)
+
+      // delete user1
+      auth.deleteUser("user1");
+
+      //reload from disk
+      data = auth.loadUsersFromDatabase();
+
+      const user = data.users.find((user) => user.login === "user1");
+
+      expect(user).not.toBeDefined();
+      expect(data.users.length).toEqual(2)
+
+      // delete every users
+      data.users.forEach((user) => auth.deleteUser(user.login));
+      // check that there is no user
+      data = auth.loadUsersFromDatabase();
+      expect(data.users[0]).not.toBeDefined();
+
     } catch (error: unknown) {
       // unexpected error
       expect(error).not.toBeDefined();
@@ -422,7 +508,6 @@ describe("Authentification", () => {
       const verify = auth.changePassword(changepassword);
 
       expect(verify[0]).toEqual(200);
-      console.log(verify);
       expect(user.users[0].login).toEqual("admin");
       expect(user.users[0].bearer).toEqual(oldbearer);
       const verifyPassword = auth.verifyPassword(
