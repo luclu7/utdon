@@ -142,7 +142,7 @@ export class Authentification {
  */
   addUser = (user: UserType) => {
     // check if user already exists
-    if (this.users.users.find((u) => u.login === user.login)) return;
+    if (this.users.users.find((u) => u.login === user.login)) throw new Error("User already exists");
     this.users.users.push(user);
     writeFileSync(this.database, JSON.stringify(this.users), {
       encoding: "utf-8",
