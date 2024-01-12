@@ -91,7 +91,6 @@ export const UserManager = () => {
     };
 
     const handleOnDelete = async (login: string) => {
-        console.log(login);
         if (login) {
             dispatch(mytinydcUPDONApi.endpoints.deleteUser.initiate(login))
                 .unwrap()
