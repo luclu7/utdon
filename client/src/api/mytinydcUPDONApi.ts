@@ -16,7 +16,7 @@ export const mytinydcUPDONApi = createApi({
   // Query service name
   reducerPath: "api",
   // tag types
-    tagTypes: ["User"],
+    tagTypes: ["User", "Users"],
   // Url Base API
   baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
   endpoints: (builder) => ({
@@ -26,6 +26,7 @@ export const mytinydcUPDONApi = createApi({
         url: `/userlogin`,
         body,
       }),
+      invalidatesTags: ["User"]
     }),
     getUserIsAuthenticated: builder.query({
       query: () => ({
@@ -106,7 +107,13 @@ export const mytinydcUPDONApi = createApi({
       query: () => ({
         url: `/users/`,
       }),
-      providesTags: ["User"]
+      providesTags: ["Users"]
+    }),
+    getUserInfo: builder.query({
+        query: () => ({
+            url: `/user/`,
+        }),
+        providesTags: ["User"]
     }),
     postUser: builder.mutation({
       query: (data: NewUserType) => ({
@@ -114,7 +121,7 @@ export const mytinydcUPDONApi = createApi({
         url: `/users/`,
         body: data,
       }),
-      invalidatesTags:  ["User"]
+      invalidatesTags:  ["Users"]
     }),
     deleteUser: builder.mutation({
       query: (login: string) => ({
@@ -122,7 +129,7 @@ export const mytinydcUPDONApi = createApi({
         url: `/users/${login}`,
         type: "mutation",
       }),
-      invalidatesTags: ["User"]
+      invalidatesTags: ["Users"]
     }),
   }),
 });
@@ -131,4 +138,5 @@ export const {
   usePostUserLoginMutation,
   useGetCheckQuery,
   useGetUsersQuery,
+  useGetUserInfoQuery
 } = mytinydcUPDONApi;

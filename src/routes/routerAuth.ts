@@ -454,6 +454,55 @@ routerAuth.get(
 
 /**
  * @swagger
+ * /user:
+ *   get:
+ *     summary: get user's login
+ *     description: Used by UI to show the user's login in the header
+ *     security:
+ *       - ApiKeyAuth: []
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       200:
+ *         description: User's login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 login:
+ *                   type: string
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         description: Internal error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/Error'
+ */
+routerAuth.get(
+    "/user",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.session as SessionExt;
+            if (
+                session.user &&
+                session.user.login // &&
+                // session.user.login === "admin"
+            ) {
+                res.status(200).json({ login: session.user.login });
+            } else {
+                res.status(401).json({ error: "User is not logged with session" });
+            }
+        } catch (error: unknown) {
+            next(error);
+        }
+    }
+)
+
+/**
+ * @swagger
  * /bearer:
  *   put:
  *     summary: change user auth Token

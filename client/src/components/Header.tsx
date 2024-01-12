@@ -4,10 +4,10 @@
  */
 
 import { useNavigate } from "react-router-dom";
-import { mytinydcUPDONApi } from "../api/mytinydcUPDONApi";
+import { mytinydcUPDONApi, useGetUserInfoQuery } from "../api/mytinydcUPDONApi";
 import { useIntl } from "react-intl";
 import ButtonGeneric from "./ButtonGeneric";
-import {useAppDispatch, useAppSelector} from "../app/hook";
+import {useAppDispatch } from "../app/hook";
 
 import "./Header.scss";
 import { useState } from "react";
@@ -19,7 +19,7 @@ import { ErrorServer } from "../../../src/Global.types";
 import { showServiceMessage } from "../app/serviceMessageSlice";
 import { APPLICATION_VERSION, INITIALIZED_TOAST } from "../../../src/Constants";
 import { setRefetchuptodateForm } from "../app/contextSlice";
-import {UserManager} from "../features/usermanager/UserManager.tsx";
+import {UserManager } from "../features/usermanager/UserManager.tsx";
 
 export const Header = () => {
   const intl = useIntl();
@@ -112,7 +112,12 @@ export const Header = () => {
 
   const [dialogContent, setDialogContent] = useState(<></>);
 
-  const login = useAppSelector((state) => state.context.user.login);
+  const {
+      data: userInfo,
+      isSuccess
+  } = useGetUserInfoQuery(null, {
+      skip: false,
+  });
 
   return (
     <div className="header">
@@ -159,12 +164,10 @@ export const Header = () => {
           className="curlcommands"
         />
         <div className="flexPushLeft logout">
-            {login && (
-                <div className="loginName">
-                    <div className="ti ti-user"></div>
-                    {login ? login : "..."}
-                </div>
-            )}
+            <div className="loginName">
+                <div className="ti ti-user"></div>
+                {isSuccess ? userInfo.login && userInfo.login : "..."}
+            </div>
             <ButtonGeneric onClick={displayDialogUsersManager} icon={"users"} title={intl.formatMessage({ id: "Change you password" })} />
 
             <ButtonGeneric
