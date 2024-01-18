@@ -41,10 +41,6 @@
         padding: $padding-default;
         overflow-x: hidden;
         overflow-y: auto;
-
-        @media (prefers-color-scheme: dark) {
-          color: $text-dark;
-        }
       }
     }
     .version {
