@@ -17,7 +17,6 @@ export const InputIcon = ({ ...props }: InputIconProps) => {
       <InputGeneric
         type={props.type}
         value={props.value}
-        autoComplete={props.autoComplete}
         placeholder={props.placeholder}
         onChange={props.onChange}
         onKeyUp={props.onKeyUp}
