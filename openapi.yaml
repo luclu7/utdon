@@ -502,6 +502,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /user:
+    get:
+      summary: get user's login
+      description: Used by UI to show the user's login in the header
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Authentication
+      responses:
+        "200":
+          description: User's login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  login:
+                    type: string
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /control/{uuid}:
     get:
       summary: Get control values
