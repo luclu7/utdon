@@ -16,7 +16,7 @@ export const mytinydcUPDONApi = createApi({
   // Query service name
   reducerPath: "api",
   // tag types
-    tagTypes: ["User", "Users"],
+  tagTypes: ["User", "Users"],
   // Url Base API
   baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
   endpoints: (builder) => ({
