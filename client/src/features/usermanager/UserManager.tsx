@@ -168,7 +168,7 @@ export const UserManager = () => {
             <table>
                 <thead>
                 <tr>
-                    <th>{intl.formatMessage({id: "Login"})}</th>
+                    <th>{intl.formatMessage({id: "Username"})}</th>
                     <th>{intl.formatMessage({id: "Actions"})}</th>
                 </tr>
                 </thead>
