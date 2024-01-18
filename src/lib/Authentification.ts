@@ -4,7 +4,7 @@
  */
 
 import { readFileSync, existsSync, writeFileSync } from "fs";
-import {ChangePasswordType, InfoIuType, UsersType, UserType} from "../Global.types";
+import { ChangePasswordType, InfoIuType, UsersType, UserType } from "../Global.types";
 import crypto from "crypto";
 
 import {

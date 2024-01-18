@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { mytinydcUPDONApi, useGetUserInfoQuery } from "../api/mytinydcUPDONApi";
 import { useIntl } from "react-intl";
 import ButtonGeneric from "./ButtonGeneric";
-import {useAppDispatch } from "../app/hook";
+import { useAppDispatch } from "../app/hook";
 
 import "./Header.scss";
 import { useState } from "react";
@@ -19,7 +19,7 @@ import { ErrorServer } from "../../../src/Global.types";
 import { showServiceMessage } from "../app/serviceMessageSlice";
 import { APPLICATION_VERSION, INITIALIZED_TOAST } from "../../../src/Constants";
 import { setRefetchuptodateForm } from "../app/contextSlice";
-import {UserManager } from "../features/usermanager/UserManager.tsx";
+import { UserManager } from "../features/usermanager/UserManager.tsx";
 
 export const Header = () => {
   const intl = useIntl();
