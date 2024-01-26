@@ -248,7 +248,7 @@ describe("Authentification", () => {
   test("make & store User - user malformed - login empty", () => {
     try {
       const auth = new Authentification(userDatabase);
-      auth.store({ login: "", password: "xxxx", uuid: "xxx", bearer: "xxx" });
+      auth.store({ login: "", password: "xxxx", uuid: "xxx", bearer: "xxx", type: "local" });
       //unexpected
       expect(true).toBeFalsy();
     } catch (error: unknown) {
@@ -260,7 +260,7 @@ describe("Authentification", () => {
     try {
       process.env.USER_ENCRYPT_SECRET = "test";
       const auth = new Authentification(userDatabase);
-      auth.store({ login: "xxxx", password: "", uuid: "xxx", bearer: "xxx" });
+      auth.store({ login: "xxxx", password: "", uuid: "xxx", bearer: "xxx", type: "local" });
       //unexpected
       expect(true).toBeFalsy();
     } catch (error: unknown) {
@@ -272,7 +272,7 @@ describe("Authentification", () => {
     try {
       process.env.USER_ENCRYPT_SECRET = "test";
       const auth = new Authentification(userDatabase);
-      auth.store({ login: "xxxx", password: "xxx", uuid: "", bearer: "xxx" });
+      auth.store({ login: "xxxx", password: "xxx", uuid: "", bearer: "xxx", type: "local" });
       //unexpected
       expect(true).toBeFalsy();
     } catch (error: unknown) {
@@ -284,7 +284,7 @@ describe("Authentification", () => {
     try {
       process.env.USER_ENCRYPT_SECRET = "test";
       const auth = new Authentification(userDatabase);
-      auth.store({ login: "xxxx", password: "xxx", uuid: "xxx", bearer: "" });
+      auth.store({ login: "xxxx", password: "xxx", uuid: "xxx", bearer: "", type: "local" });
       //unexpected
       expect(true).toBeFalsy();
     } catch (error: unknown) {

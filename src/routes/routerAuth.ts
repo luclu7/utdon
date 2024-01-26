@@ -6,10 +6,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import { ERRORINVALIDREQUEST } from "../Constants";
 import {
-  ChangePasswordType,
-  InfoIuType,
-  NewUserType,
-  UsersType,
+    ChangePasswordType,
+    InfoIuType,
+    NewUserType,
+    UsersType, UserType,
 } from "../Global.types";
 import { SessionExt } from "../ServerTypes";
 const routerAuth = express.Router();
@@ -58,22 +58,34 @@ routerAuth.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let verif: [number, string | InfoIuType] = ERRORINVALIDREQUEST;
-      if (req.body && req.body.login && req.body.password) {
-        verif = req.app
-          .get("AUTH")
-          .verifyPassword(req.body.login, req.body.password);
-        if (verif[0] === 200) {
-          req.app.get("LOGGER").info({
-            action: "login",
-            user: req.body.login,
-          });
-          const session = req.session as SessionExt;
-          session.user = req.app.get("AUTH").getInfoForUi(req.body.login);
+        // check if user's type
+        if (req.body && req.body.login && req.body.password) {
+            // check if LDAP is enabled
+            if (req.app.get("LDAP").enabled &&
+                req.app.get("AUTH").users.users
+                    .filter((user: UserType) => user.login === req.body.login)[0].type === "ldap"
+            ) {
+                // if so, use verifyPasswordLDAP
+                verif = await req.app.get("LDAP").verifyPasswordLDAP(req.body.login, req.body.password);
+            } else {
+                // if not, use verifyPassword
+                verif = req.app
+                    .get("AUTH")
+                    .verifyPassword(req.body.login, req.body.password);
+            }
+            if (verif[0] === 200) {
+                req.app.get("LOGGER").info({
+                    action: "login",
+                    user: req.body.login
+                });
+
+                const session = req.session as SessionExt;
+                session.user = req.app.get("AUTH").getInfoForUi(req.body.login);
+            }
         }
-      }
-      res.status(verif[0]).json(verif[1]);
+        res.status(verif[0]).json(verif[1]);
     } catch (error) {
-      next(error);
+        next(error);
     }
   }
 );
@@ -362,6 +374,57 @@ routerAuth.get(
     }
   }
 );
+
+routerAuth.get(
+    "/ldapusers",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const logins = await req.app.get("LDAP").getLDAPUsers();
+            res.json(logins);
+            // res.status(verif ? 200 : 401).json();
+        } catch (error) {
+            next(error);
+        }
+    }
+)
+
+routerAuth.get(
+    "/ldap/import",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const logins: string[] = await req.app.get("LDAP").getLDAPUsers();
+            const users: UsersType = req.app.get("AUTH").users;
+            const newUsers = logins.map((login) =>
+                req.app.get("LDAP").makeLDAPUser(login)
+            )
+            newUsers.forEach((user) => {
+                if (!users.users.find((u) => u.login === user.login)) {
+                    users.users.push(user);
+                }
+            })
+            req.app.get("AUTH").writeDB(JSON.stringify(users));
+            res.json(logins);
+            // res.status(verif ? 200 : 401).json();
+        } catch (error) {
+            next(error);
+        }
+    }
+)
+
+routerAuth.get(
+    "/ldap/auth",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const login = req.query.login as string;
+            const password = req.query.password as string;
+            // use verifyPasswordLDAP
+            res.json(await req.app.get("LDAP").verifyPasswordLDAP(login, password));
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+)
 
 /**
  * @swagger

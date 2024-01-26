@@ -154,6 +154,7 @@ export type UserType = {
   uuid: string;
   password: string;
   bearer: string;
+  type: "local" | "ldap";
 };
 
 export type UIError = {

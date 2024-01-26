@@ -87,6 +87,7 @@ export class Authentification {
         this.generateBearerKey(),
         process.env.USER_ENCRYPT_SECRET
       ),
+      type: "local",
     };
   };
 

@@ -20,6 +20,7 @@ import {
   getDbInitJsonFileName,
 } from "./lib/Database";
 import { Authentification } from "./lib/Authentification";
+import { LDAPAuthentification } from "./lib/LDAPAuthentification";
 import {
   ADMINPASSWORDDEFAULT,
   ADMINUSERLOGINDEFAULT,
@@ -36,6 +37,7 @@ import routerAuth from "./routes/routerAuth";
 
 // Swagger Documentation
 import swaggerUi from "swagger-ui-express";
+import { ConfigType } from "./ServerTypes";
 
 // logs
 const { combine, timestamp, json } = winston.format;
@@ -81,9 +83,17 @@ dbGetData(dbfile)
 // Checking user database
 const userDbPathDev = `${__dirname}/../data/user.json`;
 const userDbPath = `${__dirname}/data/user.json`;
+const configPath = `${__dirname}/../data/config.json`;
+// read config file for LDAP
+const config: ConfigType = JSON.parse(readFileSync(configPath, "utf-8"));
+
+
 const auth = new Authentification(
   process.env.environment === "development" ? userDbPathDev : userDbPath
 );
+const ldap = new LDAPAuthentification( process.env.environment === "development" ? userDbPathDev : userDbPath, config);
+ldap.ldapAuthentification();
+
 const data = auth.loadUsersFromDatabase();
 if (data.users && data.users.length === 0) {
   logger.info({ action: "Creating user database, with admin/admin" });
@@ -96,6 +106,7 @@ const app = express();
 app.set("LOGGER", logger);
 app.set("DBFILE", dbfile);
 app.set("AUTH", auth);
+app.set("LDAP", ldap);
 
 app.use(
   helmet({
